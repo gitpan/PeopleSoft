@@ -1,6 +1,9 @@
-# Copyright (c) 2003 William Goedicke. All rights reserved. This
-# program is free software; you can redistribute it and/or modify it
-# under the same terms as Perl itself.
+#
+# $Id: Tools.pm,v 1.4 2003/06/05 16:00:58 goedicke Exp $
+#
+# Copyright (c) 2003 William Goedicke. All rights reserved. This program is free
+# software; you can redistribute it and/or modify it under the same terms
+# as Perl itself.
 
 =head1 NAME
 
@@ -224,7 +227,7 @@ sub profile {
     my $fin_in = $ex_dur - $in_dur;
     if ( $fin_in < 0 ) {
       $ex_dur = $fin_in * -1;
-      $fin_in = 0;  
+      $fin_in = 0;
     }
     $G_calls->set_attribute("Ex_Dur", $vertex, $ex_dur);
     $G_calls->set_attribute("In_Dur", $vertex, $fin_in);
@@ -233,7 +236,7 @@ sub profile {
 #  print Data::Dumper::Dumper($G_calls);
 #  exit;
 
-  my $hbuf .= "<html><body>\n<table border=1>\n<tr>";
+  my $hbuf .= "<table border=1>\n<tr>";
   for ( my $i=0;$i<$max_lvl-1;$i++) {
     $hbuf .= "<th>Function"
   }
@@ -255,7 +258,61 @@ sub profile {
     $hbuf .= sprintf("%0.3f",$G_calls->get_attribute("In_Dur", $subr));
     $hbuf .= "</td></tr>\n";
   }
-  $hbuf .= "</table>\n</body></html>\n";
+  $hbuf .= "</table>";
+
+  my @junk = values( %{$G_calls->{'VertexSetParent'}} );
+  my $total = $G_calls->get_attribute("Ex_Dur", $junk[0]);
+  
+  my ( %count, %norm, %intrin );
+  foreach my $v ( $G_calls->vertices ) {
+    $count{$v} = $G_calls->get_attribute("Count", $v);
+    $intrin{$v} = $G_calls->get_attribute("In_Dur", $v);
+    $norm{$v} = $intrin{$v} / $count{$v};
+  }
+
+  my $sum_buf = "<html><body>\n";
+
+  $sum_buf .= "<table><tr>\n\n";
+  $sum_buf .= "<td><table border=1>\n";
+  $sum_buf .= "<tr><th colspan=2, align=\"center\">Normalized Intrinsic Duration</th></tr>\n";
+
+  my $i=0;
+  foreach my $v (sort { $norm{$b} <=> $norm{$a} } keys %norm ) {
+    if ( $i++ >= 5 ) { last; }
+    $sum_buf .= "<tr><td>$v</td><td>";
+    $sum_buf .= sprintf("%.2f",$norm{$v});
+    $sum_buf .= "</td></tr>\n";
+  }
+  $sum_buf .= "</table></td><td>&nbsp</td>\n";
+
+  $sum_buf .= "<td><table border=1>\n";
+  $sum_buf .= "<tr><th colspan=3, align=\"center\">Intrinsic Duration</th></tr>\n";
+
+  my $i=0;
+  foreach my $v (sort { $intrin{$b} <=> $intrin{$a} } keys %intrin ) {
+    if ( $i++ >= 5 ) { last; }
+    $sum_buf .= "<tr><td>$v</td><td>";
+    $sum_buf .= sprintf("%.2f",$intrin{$v});
+    $sum_buf .= "</td><td>";
+    my $pct = sprintf("%.2f",$intrin{$v} / $total * 100);
+    $sum_buf .= "$pct\%";
+    $sum_buf .= "</td></tr>\n";
+  }
+  $sum_buf .= "</table></td><td>&nbsp</td>\n";
+
+  $sum_buf .= "<td><table border=1>\n";
+  $sum_buf .= "<tr><th colspan=2, align=\"center\">Counts</th></tr>\n";
+
+  my $i=0;
+  foreach my $v (sort { $count{$b} <=> $count{$a} } keys %count ) {
+    if ( $i++ >= 5 ) { last; }
+    $sum_buf .= "<tr><td>$v</td><td>$count{$v}</td></tr>\n";
+  }
+  $sum_buf .= "</table></td>\n";
+  $sum_buf .= "</tr></table>\n\n";
+
+  $hbuf = $sum_buf . $hbuf . "</body></html>\n";
+
   return $hbuf;
 }
 #--------------------------------------------------
@@ -309,4 +366,5 @@ elsif ( /^\s*${locale}-procedure\s*/i  ) { $type = "proc";      }
 
   return( $locale, $type );
 }
+
 1;

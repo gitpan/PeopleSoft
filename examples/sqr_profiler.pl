@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #
-# Copyright (c) 2003 William Goedicke. All rights reserved. This
-# program is free software; you can redistribute it and/or modify it
-# under the same terms as Perl itself.
+# Copyright (c) 2003 William Goedicke. All rights reserved. This program is free
+# software; you can redistribute it and/or modify it under the same terms
+# as Perl itself.
 
 use strict;
 use PeopleSoft::Tools;
@@ -30,7 +30,7 @@ else {
 while(<INFILE>) { $buf .= $_; }
 
 if ( $use_mode eq "m" ) {
-  print OUTFILE munge($buf, $letter);
+  print OUTFILE munge($buf);
 }
 elsif ( $use_mode eq "p" ) {
   my $hbuf = profile($buf);
@@ -59,13 +59,22 @@ table of the cumulative time each subroutine, DDL and DML took to
 execute.  There is also an "unmunge" mode to remove the profiling
 statements from an SQR.
 
-  Usage: sqr_profiler.pl [ -l <letter> ] -m m -f <filespec>
+  Usage: sqr_profiler.pl -m m -f <filespec> [ -l <letter> ]
          sqr_profiler.pl -m p -f <filespec>
          sqr_profiler.pl -m u -f <filespec>
 
   -m {p|m|u}      - Mode: p for profile, m for munge, u for unmunge
   -l <letter>     - Letter for debug statement (default p)
   -f <filespce>   - Specify source file(s) to munge or log file to analyze
+
+An example session on a Windows box might be:
+
+c:\work\sqr\src> sqr_profiler -m m real_dog.sqr -l J
+c:\work\sqr\src> md safe_spot
+c:\work\sqr\src> copy real_dog.sqr_orig safe_spot\pre_profile_real_dog.sqr
+c:\work\sqr\src> sqrw -o.\log\real_dog.log -DEBUGJ real_dog.sqr
+c:\work\sqr\src> sqr_profiler -m p -f real_dog.log > real_dog_profile_results.html
+c:\work\sqr\src> sqr_profiler -m u -f real_dog.sqr
 
 USAGE
 

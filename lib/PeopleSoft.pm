@@ -27,7 +27,7 @@ use Data::Dumper;
 package PeopleSoft;
 use Exporter;
 use vars qw(@ISA @EXPORT $VERSION);
-$VERSION = '1.03';
+$VERSION = '1.04';
 @ISA = qw(Exporter);
 
 @EXPORT = qw(get_tbl_names
