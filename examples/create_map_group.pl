@@ -1,7 +1,11 @@
 #!/usr/bin/perl
 #
-use PeopleSoft::EPM::DataLoader;
-use PeopleSoft::Tables;
+# Copyright (c) 2003 William Goedicke. All rights reserved. This
+# program is free software; you can redistribute it and/or modify it
+# under the same terms as Perl itself.
+
+use PeopleSoft::EPM;
+use PeopleSoft;
 use strict;
 use Data::Dumper;
 

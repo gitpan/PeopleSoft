@@ -1,14 +1,18 @@
 #
-# $Id: Tables.pm,v 0.1 2003/02/10 03:09:10 wbg Exp $
+# $Id: PeopleSoft.pm,v 1.2 2003/06/02 20:57:40 goedicke Exp $
+#
+# Copyright (c) 2003 William Goedicke. All rights reserved. This
+# program is free software; you can redistribute it and/or modify it
+# under the same terms as Perl itself.
 
 =head1 NAME
 
-PeopleSoft::Tables - Procedural interface for querying and
-manipulating tables
+PeopleSoft - Procedural interface for working with PeopleSoft
+applications.
 
 =head1 SYNOPSIS
 
- use PeopleSoft::Tables;
+ use PeopleSoft;
  my $dbh = get_dbh( $username, $password, $SID );
  my $tbl_name_aref = get_tbl_names( 'table_name_spec', $dbh);
  my $tbl_name_aref = where_from( $view_name, $dbh );
@@ -24,7 +28,7 @@ use strict;
 use Data::Dumper; 
 use SQL::Parser;
 
-package PeopleSoft::Tables;
+package PeopleSoft;
 use Exporter;
 use vars qw(@ISA @EXPORT);
 @ISA = qw(Exporter);
@@ -38,9 +42,6 @@ use vars qw(@ISA @EXPORT);
 	     get_fld_metadata_href
 	     make_ins_stmt
 	    );
-
-# km.
-our $VERSION = '1.00';
 
 =head1 DESCRIPTION
 
@@ -132,12 +133,6 @@ sub get_rec_count {
   $sth->finish;
 
   return $count;
-}
-
-# --------------------------------- 
-sub copy_recs {
-  my ( $src_dbh, $dest_dbh, $src_tbl_name, $dest_tbl_name ) = @_;
-
 }
 
 # --------------------------------- 

@@ -1,12 +1,9 @@
-lib/PeopleSoft/Tables.pm
-lib/PeopleSoft/EPM/ETL.pm
-lib/PeopleSoft/EPM/DataLoader.pm
-examples/bad_ri_emplid.pl
-examples/create_map_group.pl
-examples/get_load_seq.pl
-examples/release_recsuite.pl
 Changes
+CVS
+EPM.pm
 Makefile.PL
 MANIFEST
+PeopleSoft.pm
 README
-t/1.t
+test.pl
+Tools.pm
