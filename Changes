@@ -4,3 +4,6 @@ Revision history for Perl extension PeopleSoft.
 	- original version; created by h2xs 1.21 with options
 		-X -O -n PeopleSoft
 
+0.02  Tue Jun 3 2003
+
+	- namespace changes, added sqr profiler

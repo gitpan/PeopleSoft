@@ -1,6 +1,3 @@
-#
-# $Id: PeopleSoft.pm,v 1.2 2003/06/02 20:57:40 goedicke Exp $
-#
 # Copyright (c) 2003 William Goedicke. All rights reserved. This
 # program is free software; you can redistribute it and/or modify it
 # under the same terms as Perl itself.
@@ -30,7 +27,8 @@ use SQL::Parser;
 
 package PeopleSoft;
 use Exporter;
-use vars qw(@ISA @EXPORT);
+use vars qw(@ISA @EXPORT $VERSION);
+$VERSION = '1.02';
 @ISA = qw(Exporter);
 
 @EXPORT = qw(get_tbl_names

@@ -1,34 +1,3 @@
-head	1.2;
-access;
-symbols
-	PeopleSoft:1.2;
-locks; strict;
-comment	@# @;
-
-
-1.2
-date	2003.05.27.20.49.52;	author goedicke;	state Exp;
-branches;
-next	1.1;
-
-1.1
-date	2003.05.27.20.44.25;	author goedicke;	state Exp;
-branches;
-next	;
-
-
-desc
-@@
-
-
-1.2
-log
-@Combined DataLoader.pm and ETL.pm, so far untested.
-@
-text
-@#
-# $Id: EPM.pm,v 1.1.1.1 2003/06/02 19:51:48 goedicke Exp $
-#
 # Copyright (c) 2003 William Goedicke. All rights reserved. This
 # program is free software; you can redistribute it and/or modify it
 # under the same terms as Perl itself.

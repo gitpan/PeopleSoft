@@ -1,37 +1,6 @@
-head	1.2;
-access;
-symbols
-	PeopleSoft:1.2;
-locks; strict;
-comment	@# @;
-
-
-1.2
-date	2003.05.27.20.32.43;	author goedicke;	state Exp;
-branches;
-next	1.1;
-
-1.1
-date	2003.05.27.20.21.58;	author goedicke;	state Exp;
-branches;
-next	;
-
-
-desc
-@@
-
-
-1.2
-log
-@Got this into RCS
-@
-text
-@#
-# $Id: Tools.pm,v 1.1.1.1 2003/06/02 19:51:48 goedicke Exp $
-#
-# Copyright (c) 2003 William Goedicke. All rights reserved. This program is free
-# software; you can redistribute it and/or modify it under the same terms
-# as Perl itself.
+# Copyright (c) 2003 William Goedicke. All rights reserved. This
+# program is free software; you can redistribute it and/or modify it
+# under the same terms as Perl itself.
 
 =head1 NAME
 
@@ -55,10 +24,10 @@ use Data::Dumper;
 
 package PeopleSoft::Tools;
 use Exporter;
-use vars qw(@@ISA @@EXPORT);
-@@ISA = qw(Exporter);
+use vars qw(@ISA @EXPORT);
+@ISA = qw(Exporter);
 
-@@EXPORT = qw(munge
+@EXPORT = qw(munge
 	     unmunge
 	     profile
 	    );
@@ -91,13 +60,13 @@ and DDL.
 
 #--------------------------------------------------
 sub munge {
-  my ( $sqr, $letter ) = @@_;
+  my ( $sqr, $letter ) = @_;
   if ( ! defined $letter ) { $letter = "p"; }
 
   my ( %not_profiling, $rbuf );
-  my @@sqr_lines = split "\n", $sqr;
+  my @sqr_lines = split "\n", $sqr;
 
- MAN: foreach ( @@sqr_lines ) {
+ MAN: foreach ( @sqr_lines ) {
     my $test=0;
     if ( ( /^\s*begin\-/i or /^\s*end\-/i ) and not 
 	  ( /^\s*end-if\s*/i or /^\s*end-while\s*/i or /^\s*end-declare\s*/i or 
@@ -157,12 +126,12 @@ profiling statements removed.
 
 #----------------------------------- unmunge()
 sub unmunge {
-  my ( $mbuf ) = @@_;
+  my ( $mbuf ) = @_;
   my ( $rbuf );
 
-  my @@mbuf_lines = split "\n", $mbuf;
+  my @mbuf_lines = split "\n", $mbuf;
 
-  foreach ( @@mbuf_lines ) {
+  foreach ( @mbuf_lines ) {
     if ( /\!PFLR/ ) { next; }
     $rbuf .= $_ . "\n";
   }
@@ -185,12 +154,12 @@ called and intrinsic seconds of execution time.
 
 #--------------------------------------------------
 sub profile {
-  my ( $log_output ) = @@_;
-  my @@edata = split "\n", $log_output;
+  my ( $log_output ) = @_;
+  my @edata = split "\n", $log_output;
   my $G_calls = new Graph;
-  my ( @@call_stack );
+  my ( @call_stack );
 
-  foreach ( @@edata ) {
+  foreach ( @edata ) {
     chomp;
     if ( ! m/^PFLR/ ) {
       next;
@@ -215,7 +184,7 @@ sub profile {
       if ( $#call_stack >=0 ) {
 	$G_calls->set_attribute("CalcTime", $call_stack[-1], $subr, $time);
       }
-      push @@call_stack, $subr;
+      push @call_stack, $subr;
     }
     elsif ( $phase eq "END" ) {
       if ( $#call_stack >0 ) {
@@ -224,7 +193,7 @@ sub profile {
 	  $G_calls->get_attribute("Duration", $call_stack[-2], $subr);
 	$G_calls->set_attribute("Duration", $call_stack[-2], $subr, $duration);
       }
-      pop @@call_stack;
+      pop @call_stack;
     }
     else {
       die "Not START or END; that's bad";
@@ -291,7 +260,7 @@ sub profile {
 }
 #--------------------------------------------------
 sub recurse {
-  my ( $G_calls, $v, $lvl ) = @@_;
+  my ( $G_calls, $v, $lvl ) = @_;
 
   $result_data .= "$v!$lvl\n";
   if ( defined $G_calls->{'Succ'}{$v} ) {
@@ -340,20 +309,4 @@ elsif ( /^\s*${locale}-procedure\s*/i  ) { $type = "proc";      }
 
   return( $locale, $type );
 }
-
 1;
-@
-
-
-1.1
-log
-@Initial revision
-@
-text
-@d2 1
-a2 1
-# $Id: Tools.pm,v 1.1.1.1 2003/06/02 19:51:48 goedicke Exp $
-d230 1
-a230 1
-      $fin_in = 0;
-@
