@@ -5,8 +5,12 @@
 
 # change 'tests => 1' to 'tests => last_test_to_print';
 
-use Test::More tests => 1;
-BEGIN { use_ok('PeopleSoft::Tables') };
+use Test::More tests => 3;
+BEGIN { 
+	use_ok('PeopleSoft');
+	use_ok('PeopleSoft::EPM');
+	use_ok('PeopleSoft::Tools');
+};
 
 #########################
 

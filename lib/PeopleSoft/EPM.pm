@@ -10,7 +10,7 @@ PeopleSoft::EPM - Functions for EPM
 
  use PeopleSoft::EPM;
  my $result = remove_grp($grpid,$dbh);
- my $result = create_grp(\@@grp,,$grpid,$parallelflag $dbh)
+ my $result = create_grp(\@grp,,$grpid,$parallelflag $dbh)
  my $result = release_recsuite($rs_id, $js_id, $dbh);
  my $return = ren_repository($old_name, $new_name, $dbh);
  my ( $maps, $srcs, $tgts, $lkps ) = get_mapping_structs( $app_aref, $dbh );
@@ -25,10 +25,10 @@ use DBI;
 use strict;
 use Data::Dumper;
 use Exporter;
-use vars qw(@@ISA @@EXPORT);
-@@ISA = qw(Exporter);
+use vars qw(@ISA @EXPORT);
+@ISA = qw(Exporter);
 
-@@EXPORT = qw(remove_grp
+@EXPORT = qw(remove_grp
              create_grp
 	     release_recsuite
 	     get_mapping_structs
@@ -64,11 +64,11 @@ group from the database associated with $dbh.
 =cut
 
 sub remove_grp{
-   my ($grpid,$dbh) = @@_;
-   my @@sql_cmd;
+   my ($grpid,$dbh) = @_;
+   my @sql_cmd;
    $sql_cmd[0] = "delete from ps_pf_dl_grp_defn where pf_dl_grp_id = '$grpid'";
    $sql_cmd[1] = "delete from ps_pf_dl_grp_step where pf_dl_grp_id = '$grpid'";
-   foreach (@@sql_cmd){
+   foreach (@sql_cmd){
       $dbh->do($_);
       $dbh->commit;
    }
@@ -77,7 +77,7 @@ sub remove_grp{
 
 =over 3
 
-=item create_grp(\@@grp,,$grpid,$parallelflag $dbh)
+=item create_grp(\@grp,,$grpid,$parallelflag $dbh)
 
 create_grp creates a data loader map group including all the
 maps in $maps_aref with description of $mapdesc and a group
@@ -89,7 +89,7 @@ valid values are 'Y' and 'N'.
 =cut
 
 sub create_grp{
-  my ($maps_aref,$mapdesc,$grpid,$parallelflag,$dbh) = @@_;
+  my ($maps_aref,$mapdesc,$grpid,$parallelflag,$dbh) = @_;
   my $counter = 1;
   
   my $sql_cmd = "insert into ps_pf_dl_grp_defn 
@@ -99,7 +99,7 @@ sub create_grp{
                '$mapdesc')";
   $dbh->do($sql_cmd);
   
-  foreach my $mapname ( @@{$maps_aref} ) {
+  foreach my $mapname ( @{$maps_aref} ) {
     my $sql_cmd = 
       "INSERT INTO PS_PF_DL_GRP_STEP
         (PF_DL_GRP_ID,PF_DL_ROW_NUM,PF_ODS_SEQ,PF_DL_GRP_ENT_TYP,
@@ -129,9 +129,9 @@ with handle $dbh.
 =cut
 
 sub release_recsuite {
-  my ( $rs_id, $js_id, $dbh ) = @@_;
+  my ( $rs_id, $js_id, $dbh ) = @_;
 
-  my @@sql_cmd = 
+  my @sql_cmd = 
     ( "update ps_pf_recsuite_tbl set in_use_sw = 'N'
        where recsuite_id = '$rs_id'",
 
@@ -162,7 +162,7 @@ sub release_recsuite {
        PF_SPAWN_ID, PF_CHUNK_LOCK FROM PS_PF_RECSUITE_TBL
        WHERE RECSUITE_ID='$rs_id' FOR UPDATE OF IN_USE_SW" );
 
-  foreach my $cmd ( @@sql_cmd ) {
+  foreach my $cmd ( @sql_cmd ) {
     if ( ! defined $dbh->do($cmd) ) {
       die "Uh oh!  Failed to execute $cmd\n";
     }
@@ -184,15 +184,15 @@ the "folders" contained in the array of the first parameter.
 =cut
 
 sub get_maps_aref {
-  my ( $apps, $dbh ) = @@_;
-  my ( $maps, @@results );
+  my ( $apps, $dbh ) = @_;
+  my ( $maps, @results );
 
   my $sql_cmd = "select ds_mapname from ps_pf_dl_map_defn where folder_name = 'HR'";
 
   my $sth = $dbh->prepare($sql_cmd);
   $sth->execute;
-  while( @@results = $sth->fetchrow_array ) { 
-    push( @@{$maps}, $results[0]);
+  while( @results = $sth->fetchrow_array ) { 
+    push( @{$maps}, $results[0]);
   }
   $sth->finish;
 
@@ -200,30 +200,30 @@ sub get_maps_aref {
 }
 #------------------------------------------------------------
 sub dl_run_seq {
-  my ( $fldr_aref, $dbh ) = @@_;
-  my ( %mappings, @@results, @@r2, $mapnames );
+  my ( $fldr_aref, $dbh ) = @_;
+  my ( %mappings, @results, @r2, $mapnames );
 
   my $sql_cmd = "select ds_mapname from ps_pf_dl_map_defn ";
-  if ( @@{$fldr_aref} == 1 ) {
+  if ( @{$fldr_aref} == 1 ) {
     $sql_cmd .= "where folder_name = '$$fldr_aref[0]'";
   }
-  elsif ( @@{$fldr_aref} > 1 ) {
-    $sql_cmd .= "where folder_name = '", join "' or folder_name = '", @@{$fldr_aref}, "'";
+  elsif ( @{$fldr_aref} > 1 ) {
+    $sql_cmd .= "where folder_name = '", join "' or folder_name = '", @{$fldr_aref}, "'";
   }
   else { die "You have to supply at least one folder to dl_run_seq"; }
 
   my $sth = $dbh->prepare($sql_cmd);
   $sth->execute;
-  while( @@results = $sth->fetchrow_array ) {     $mappings{$results[0]} = '';
+  while( @results = $sth->fetchrow_array ) {     $mappings{$results[0]} = '';
     $sql_cmd = "select distinct ds_source_rec, edittable from PS_PF_DL_MAPDET_VW
                    where ds_mapname = '$results[0]' and
                    ds_source_rec not like ' ' and
 	           edittable not like ' '";
     my $sth2 = $dbh->prepare($sql_cmd);
     $sth2->execute;
-    while( @@r2 = $sth2->fetchrow_array ) { 
-      @@results = @@{populate_mapnames( $r2[0], 'SRC', \@@results, \%mappings, $dbh)};
-      @@results = @@{populate_mapnames( $r2[1], 'LKP', \@@results, \%mappings, $dbh)};
+    while( @r2 = $sth2->fetchrow_array ) { 
+      @results = @{populate_mapnames( $r2[0], 'SRC', \@results, \%mappings, $dbh)};
+      @results = @{populate_mapnames( $r2[1], 'LKP', \@results, \%mappings, $dbh)};
     }
     $sth2->finish;
 
@@ -232,8 +232,8 @@ sub dl_run_seq {
                 and lookup_tbl not like ' '";
     $sth2 = $dbh->prepare($sql_cmd);
     $sth2->execute;
-    while( @@r2 = $sth2->fetchrow_array ) { 
-      @@results = @@{populate_mapnames( $r2[0], 'EDT', \@@results, \%mappings, $dbh)};
+    while( @r2 = $sth2->fetchrow_array ) { 
+      @results = @{populate_mapnames( $r2[0], 'EDT', \@results, \%mappings, $dbh)};
     }
     $sth2->finish;
     $sql_cmd = "select distinct lookup_tbl from ps_pf_dl_trn_defn
@@ -241,8 +241,8 @@ sub dl_run_seq {
                 and lookup_tbl not like ' '";
     $sth2 = $dbh->prepare($sql_cmd);
     $sth2->execute;
-    while( @@r2 = $sth2->fetchrow_array ) { 
-      @@results = @@{populate_mapnames( $r2[0], 'TRN', \@@results, \%mappings, $dbh)};
+    while( @r2 = $sth2->fetchrow_array ) { 
+      @results = @{populate_mapnames( $r2[0], 'TRN', \@results, \%mappings, $dbh)};
     }
     $sth2->finish;
   }
@@ -261,40 +261,40 @@ sub dl_run_seq {
 
   return(\%mappings);
 
-  my ( @@ordered_dl_maps, $k, %done );
+  my ( @ordered_dl_maps, $k, %done );
 
   foreach my $map ( sort keys %mappings ) {
     #  print "M: $map\n";
     if ( defined $done{$map} ) { next; }
-    push @@ordered_dl_maps, dl_recurse( $map, \%mn2, \%done, \@@ordered_dl_maps );
+    push @ordered_dl_maps, dl_recurse( $map, \%mn2, \%done, \@ordered_dl_maps );
     if ( defined $done{$map} ) { next; }
     #  print "PUSHED1: $ordered_dl_maps[-1]\n";
-    push @@ordered_dl_maps, $map;
+    push @ordered_dl_maps, $map;
     $done{$map} = 1;
     #  print "PUSHED2: $ordered_dl_maps[-1]\n";
   }
 
-  my @@uniq;
+  my @uniq;
   my %seen = ();
-  foreach my $item ( @@ordered_dl_maps ){
-    push(@@uniq, $item) unless $seen{$item}++;
+  foreach my $item ( @ordered_dl_maps ){
+    push(@uniq, $item) unless $seen{$item}++;
   }
-  return(\@@uniq);
+  return(\@uniq);
 }
 #------------------------------------------------------------
 sub dl_recurse {
-  my ( $seed, $mn2, $done, $ordered_dl_maps ) = @@_;
+  my ( $seed, $mn2, $done, $ordered_dl_maps ) = @_;
 
   foreach my $k ( keys %{$mn2->{$seed}} ) {
     if ( ! defined $done->{$k} ) { dl_recurse( $k, $mn2, $done, $ordered_dl_maps ); }
   }
-  push @@{$ordered_dl_maps}, $seed;
+  push @{$ordered_dl_maps}, $seed;
   $done->{$seed} = 1;
   return $seed;
 }
 #------------------------------------------------------------
 sub populate_mapnames {
-  my ( $obj_name, $obj_type, $results, $mapnames, $dbh ) = @@_;
+  my ( $obj_name, $obj_type, $results, $mapnames, $dbh ) = @_;
   my ( $tbl_aref, $tbl );
 
   print "1:$obj_name, 2:$obj_type, 3:$results, 4:$mapnames, 5:$dbh\n";
@@ -303,8 +303,8 @@ sub populate_mapnames {
     print "is view\n";
     $mapnames->{$results->[0]}{VIEWS}{$obj_name} = '';
     $tbl_aref = where_from("PS_$obj_name", $dbh);
-    if ( defined @@{$tbl_aref} ) {
-      foreach $tbl ( @@{$tbl_aref} ) {
+    if ( defined @{$tbl_aref} ) {
+      foreach $tbl ( @{$tbl_aref} ) {
 	$tbl =~ s/^PS_//;
 	$mapnames->{$results->[0]}{$obj_type}{$tbl} = '';
       }
@@ -328,7 +328,7 @@ repository.  It returns 1 on success and 0 on failure.
 =cut
 
 sub ren_repository {
-  my ( $old_name, $new_name, $dbh ) = @@_;
+  my ( $old_name, $new_name, $dbh ) = @_;
   my ( $rec_count );
 
   my $sql_cmd = "select count(*) from OPB_REPOSIT";
@@ -384,8 +384,8 @@ table with the given name.
 =cut
 
 sub get_mapname_with_target { 
-  my ( $target_name, $dbh ) = @@_;
-  my ( @@results, @@maps );
+  my ( $target_name, $dbh ) = @_;
+  my ( @results, @maps );
   my $sql_cmd = 
     "select opb_mapping.mapping_name
      from opb_mapping, opb_widget_inst, opb_targ
@@ -396,12 +396,12 @@ sub get_mapname_with_target {
 
   my $sth = $dbh->prepare($sql_cmd);
   $sth->execute;
-  while ( ( @@results ) = $sth->fetchrow_array ) {
-    push @@maps, $results[0];
+  while ( ( @results ) = $sth->fetchrow_array ) {
+    push @maps, $results[0];
   }
   $sth->finish;
 
-  return \@@maps;
+  return \@maps;
 }
 
 # ----------------------------------------------------------------------
@@ -418,8 +418,8 @@ table with the given name.
 =cut
 
 sub get_mapname_with_source { 
-  my ( $source_name, $dbh ) = @@_;
-  my ( @@results, @@maps );
+  my ( $source_name, $dbh ) = @_;
+  my ( @results, @maps );
   my $sql_cmd = 
     "select opb_mapping.mapping_name
      from opb_mapping, opb_widget_inst, opb_src
@@ -431,12 +431,12 @@ sub get_mapname_with_source {
 
   my $sth = $dbh->prepare($sql_cmd);
   $sth->execute;
-  while ( ( @@results ) = $sth->fetchrow_array ) {
-    push @@maps, $results[0];
+  while ( ( @results ) = $sth->fetchrow_array ) {
+    push @maps, $results[0];
   }
   $sth->finish;
 
-  return \@@maps;
+  return \@maps;
 }
 
 # ----------------------------------------------------------------------
@@ -459,17 +459,17 @@ you are analyzing.
 =cut
 
 sub get_mapping_structs { 
-  my ( $app_aref, $dbh, $map_name ) = @@_;
-  my ( @@results, @@r2, $tbl_name, %mappings, %sources, %targets, %lookups );
+  my ( $app_aref, $dbh, $map_name ) = @_;
+  my ( @results, @r2, $tbl_name, %mappings, %sources, %targets, %lookups );
   my ( $mapping, $name_clause );
-  my @@apps = @@{$app_aref};
+  my @apps = @{$app_aref};
 
   if ( defined $map_name ) {
     $name_clause = "opb_mapping.mapping_name = '$map_name'";
   }
   else {
     $name_clause = "opb_mapping.mapping_name like '";
-    $name_clause .= join "\%' or opb_mapping.mapping_name like '", @@apps;
+    $name_clause .= join "\%' or opb_mapping.mapping_name like '", @apps;
     $name_clause .= "\%'";
   }
 
@@ -487,9 +487,9 @@ sub get_mapping_structs {
 
   my $sth = $dbh->prepare($sql_cmd);
   $sth->execute;
-  while ( ( @@results ) = $sth->fetchrow_array ) {
-    push @@{ $lookups{$results[1]} }, $results[0];
-    push @@{ $mappings{$results[0]}{LKPS} }, $results[1];
+  while ( ( @results ) = $sth->fetchrow_array ) {
+    push @{ $lookups{$results[1]} }, $results[0];
+    push @{ $mappings{$results[0]}{LKPS} }, $results[1];
   }
   
   $sth->finish;
@@ -507,9 +507,9 @@ sub get_mapping_structs {
 
   $sth = $dbh->prepare($sql_cmd);
   $sth->execute;
-  while ( ( @@results ) = $sth->fetchrow_array ) {
-    push @@{ $mappings{$results[0]}{SRC} }, $results[1];
-    push @@{ $sources{$results[1]} }, $results[0];
+  while ( ( @results ) = $sth->fetchrow_array ) {
+    push @{ $mappings{$results[0]}{SRC} }, $results[1];
+    push @{ $sources{$results[1]} }, $results[0];
   }
   $sth->finish;
 
@@ -525,16 +525,16 @@ sub get_mapping_structs {
 
   $sth = $dbh->prepare($sql_cmd);
   $sth->execute;
-  while ( ( @@results ) = $sth->fetchrow_array ) {
+  while ( ( @results ) = $sth->fetchrow_array ) {
     $sql_cmd = "select count\(\*\) from $results[1]";
     my $sth2 = $dbh->prepare($sql_cmd);
     $sth2->execute;
-    while ( ( @@r2 ) = $sth2->fetchrow_array ) {
+    while ( ( @r2 ) = $sth2->fetchrow_array ) {
       $mappings{$results[0]}{COUNT} = $r2[0];
     }
 
-    push @@{ $mappings{$results[0]}{TGT} }, $results[1];
-    push @@{ $targets{$results[1]} }, $results[0];
+    push @{ $mappings{$results[0]}{TGT} }, $results[1];
+    push @{ $targets{$results[1]} }, $results[0];
   }
   $sth->finish;
 
@@ -561,7 +561,7 @@ such that lookups and sources are run before their targets.
 The following snippet shows typical usage employing the 
 get_mapping_structs function described above.
 
-@@{$aref} = qw( HR80 );
+@{$aref} = qw( HR80 );
 ( $MS, $SS, $TS, $LS ) = get_mapping_structs( $aref, $dbh );
 foreach $mapping ( keys(%{$MS}) ) {
   recurse( $mapping, $load_seq, $MS, $SS, $TS );
@@ -572,7 +572,7 @@ foreach $mapping ( keys(%{$MS}) ) {
 =cut
 
 sub recurse {
-  my ( $mapping, $load_seq, $MS, $SS, $TS ) = @@_;
+  my ( $mapping, $load_seq, $MS, $SS, $TS ) = @_;
   my ( $lkp, $new_trgt );
 
   if ( defined $MS->{$mapping}{DONE} ) {
@@ -584,7 +584,7 @@ sub recurse {
     return;
   }
 
-  while ( $new_trgt = pop @@{ $MS->{$mapping}{LKPS} } ) {
+  while ( $new_trgt = pop @{ $MS->{$mapping}{LKPS} } ) {
     if ( defined $TS->{$new_trgt}[0] ) {
       my $new_map = $TS->{$new_trgt}[0];
       recurse( $new_map, $load_seq, $MS, $SS, $TS );
@@ -598,19 +598,9 @@ sub recurse {
 }
 #-----------------------------------
 sub push_onto_load_seq {
-  my ( $MS, $load_seq, $mapping ) = @@_;
+  my ( $MS, $load_seq, $mapping ) = @_;
 
-  push( @@{$load_seq}, $mapping );
+  push( @{$load_seq}, $mapping );
   $MS->{$mapping}{DONE} = 1;
   return;
 }
-@
-
-
-1.1
-log
-@Initial revision
-@
-text
-@d1 609
-@

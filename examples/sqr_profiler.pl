@@ -30,7 +30,7 @@ else {
 while(<INFILE>) { $buf .= $_; }
 
 if ( $use_mode eq "m" ) {
-  print OUTFILE munge($buf);
+  print OUTFILE munge($buf, $letter);
 }
 elsif ( $use_mode eq "p" ) {
   my $hbuf = profile($buf);
@@ -60,7 +60,7 @@ execute.  There is also an "unmunge" mode to remove the profiling
 statements from an SQR.
 
   Usage: sqr_profiler.pl [ -l <letter> ] -m m -f <filespec>
-         sqr_profiler.pl [ -v ] -m p -f <filespec>
+         sqr_profiler.pl -m p -f <filespec>
          sqr_profiler.pl -m u -f <filespec>
 
   -m {p|m|u}      - Mode: p for profile, m for munge, u for unmunge

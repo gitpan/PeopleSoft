@@ -23,12 +23,11 @@ applications.
 use DBI;
 use strict;
 use Data::Dumper; 
-use SQL::Parser;
 
 package PeopleSoft;
 use Exporter;
 use vars qw(@ISA @EXPORT $VERSION);
-$VERSION = '1.02';
+$VERSION = '1.03';
 @ISA = qw(Exporter);
 
 @EXPORT = qw(get_tbl_names
